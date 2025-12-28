@@ -1,0 +1,441 @@
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画ポートフォリオ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Yu Gothic', 'Hiragino Sans', sans-serif;
+            overflow-x: hidden;
+            background: #f5f5f5;
+        }
+
+        /* Section 2: 漫画ビューワー */
+        #section2 {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #2c2c2c;
+        }
+
+        /* 漫画スライダーコンテナ */
+        .manga-slider {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row-reverse;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: grab;
+        }
+
+        .manga-slider.grabbing {
+            cursor: grabbing;
+            transition: none;
+        }
+
+        /* 各ページ */
+        .manga-page {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #fff;
+        }
+
+        /* ページ画像 */
+        .manga-page img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 最終ページ（お品書き） */
+        .manga-page.final-page {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .final-page h2 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .final-page a {
+            display: inline-block;
+            padding: 20px 50px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .final-page a:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            background: #f0f0f0;
+        }
+
+        /* ページめくりエフェクト */
+        .page-turn-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
+            pointer-events: none;
+            transition: width 0.3s ease;
+        }
+
+        .manga-page.turning .page-turn-effect {
+            width: 100px;
+        }
+
+        /* ナビゲーションインジケーター */
+        .page-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .indicator-dot.active {
+            background: white;
+            width: 30px;
+            border-radius: 6px;
+        }
+
+        /* ページ番号表示 */
+        .page-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            z-index: 100;
+        }
+
+        /* スワイプヒント */
+        .swipe-hint {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 2rem;
+            animation: swipeHint 2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes swipeHint {
+            0%, 100% {
+                transform: translateY(-50%) translateX(0);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-50%) translateX(20px);
+                opacity: 1;
+            }
+        }
+
+        .swipe-hint.hidden {
+            display: none;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .final-page h2 {
+                font-size: 2rem;
+            }
+
+            .final-page a {
+                font-size: 1.2rem;
+                padding: 15px 35px;
+            }
+
+            .page-number {
+                font-size: 0.9rem;
+                padding: 8px 15px;
+            }
+        }
+
+        /* プレースホルダー用スタイル */
+        .placeholder-page {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            color: #999;
+            font-size: 1.5rem;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .placeholder-page .page-label {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <!-- Section 2: 漫画ビューワー -->
+    <section id="section2">
+        <!-- ページ番号表示 -->
+        <div class="page-number">
+            <span id="currentPage">1</span> / <span id="totalPages">9</span>
+        </div>
+
+        <!-- スワイプヒント -->
+        <div class="swipe-hint" id="swipeHint">←</div>
+
+        <!-- 漫画スライダー -->
+        <div class="manga-slider" id="mangaSlider">
+            <!-- ページ1-8: 漫画ページ -->
+            <div class="manga-page" data-page="1">
+                <div class="placeholder-page">
+                    <div class="page-label">P.1</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="2">
+                <div class="placeholder-page">
+                    <div class="page-label">P.2</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="3">
+                <div class="placeholder-page">
+                    <div class="page-label">P.3</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="4">
+                <div class="placeholder-page">
+                    <div class="page-label">P.4</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="5">
+                <div class="placeholder-page">
+                    <div class="page-label">P.5</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="6">
+                <div class="placeholder-page">
+                    <div class="page-label">P.6</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="7">
+                <div class="placeholder-page">
+                    <div class="page-label">P.7</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <div class="manga-page" data-page="8">
+                <div class="placeholder-page">
+                    <div class="page-label">P.8</div>
+                    <div>ここに漫画の画像を配置</div>
+                </div>
+                <div class="page-turn-effect"></div>
+            </div>
+
+            <!-- ページ9: お品書きページ -->
+            <div class="manga-page final-page" data-page="9">
+                <h2>お品書きはこちら</h2>
+                <a href="https://example.com/menu" target="_blank">お品書きを見る</a>
+            </div>
+        </div>
+
+        <!-- ページインジケーター -->
+        <div class="page-indicator" id="pageIndicator"></div>
+    </section>
+
+    <script>
+        // 要素の取得
+        const slider = document.getElementById('mangaSlider');
+        const pages = document.querySelectorAll('.manga-page');
+        const currentPageEl = document.getElementById('currentPage');
+        const totalPagesEl = document.getElementById('totalPages');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const swipeHint = document.getElementById('swipeHint');
+
+        let currentPage = 0;
+        const totalPages = pages.length;
+        let startX = 0;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+        let isDragging = false;
+
+        // 総ページ数を設定
+        totalPagesEl.textContent = totalPages;
+
+        // ページインジケーターの生成
+        for (let i = 0; i < totalPages; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('indicator-dot');
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToPage(i));
+            pageIndicator.appendChild(dot);
+        }
+
+        // タッチ・マウスイベント
+        slider.addEventListener('mousedown', dragStart);
+        slider.addEventListener('touchstart', dragStart);
+        slider.addEventListener('mousemove', drag);
+        slider.addEventListener('touchmove', drag);
+        slider.addEventListener('mouseup', dragEnd);
+        slider.addEventListener('mouseleave', dragEnd);
+        slider.addEventListener('touchend', dragEnd);
+
+        // キーボード操作（右開きなので左キーで次へ）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') nextPage();
+            if (e.key === 'ArrowRight') prevPage();
+        });
+
+        function dragStart(e) {
+            isDragging = true;
+            startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            slider.classList.add('grabbing');
+            
+            // ページめくりエフェクト
+            pages[currentPage].classList.add('turning');
+            
+            // スワイプヒントを非表示
+            swipeHint.classList.add('hidden');
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const diff = currentX - startX;
+            currentTranslate = prevTranslate + diff;
+
+            slider.style.transform = `translateX(${currentTranslate}px)`;
+        }
+
+        function dragEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            slider.classList.remove('grabbing');
+            
+            // ページめくりエフェクトを解除
+            pages[currentPage].classList.remove('turning');
+
+            const movedBy = currentTranslate - prevTranslate;
+
+            // スワイプ判定（右開きなので右→左で次へ）
+            if (movedBy > 50 && currentPage < totalPages - 1) {
+                nextPage();
+            } else if (movedBy < -50 && currentPage > 0) {
+                prevPage();
+            } else {
+                goToPage(currentPage);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                updatePage();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePage();
+            }
+        }
+
+        function goToPage(pageIndex) {
+            currentPage = pageIndex;
+            updatePage();
+        }
+
+        function updatePage() {
+            const offset = currentPage * window.innerWidth;
+            prevTranslate = offset;
+            currentTranslate = offset;
+
+            slider.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            slider.style.transform = `translateX(${offset}px)`;
+
+            // ページ番号更新
+            currentPageEl.textContent = currentPage + 1;
+
+            // インジケーター更新
+            document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentPage);
+            });
+
+            // トランジション後にリセット
+            setTimeout(() => {
+                slider.style.transition = 'none';
+            }, 500);
+        }
+
+        // 画面リサイズ対応
+        window.addEventListener('resize', () => {
+            updatePage();
+        });
+
+        // 初期化
+        updatePage();
+    </script>
+</body>
+</html>
