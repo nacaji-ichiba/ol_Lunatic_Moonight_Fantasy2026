@@ -11,59 +11,63 @@
     <section id="section2">
 
         <!-- スワイプヒント -->
-        <div class="swipe-hint" id="swipeHint">←</div>
+        <div class="swipe-hint" id="swipeHint">
+            <span class="swipe-arrow">→</span>
+            <span class="swipe-text">スワイプ</span>
+        </div>
 
         <!-- 漫画スライダー -->
         <div class="manga-slider" id="mangaSlider">
-            <!-- ページ1-8: 漫画ページ -->
+
             <div class="manga-page" data-page="1">
-                <div class="placeholder-page">
-                    <div class="page-label">P.1</div>
-                    <div>
-                        <img src="img/sample_01.png" alt="01">
-                    </div>
+                <div class="page-wrap">
+                    <img src="img/sample01.png" alt="01">
+                    <!-- ページめくり右側シャドー -->
+                    <div class="turn-shadow"></div>
                 </div>
-                <div class="page-turn-effect"></div>
             </div>
 
             <div class="manga-page" data-page="2">
-                <div class="placeholder-page">
-                    <div class="page-label">P.2</div>
-                    <div>
-                    <img src="img/sample_02.png" alt="02">
+                <div class="page-wrap">
+                    <img src="img/sample02.png" alt="02">
+                    <div class="turn-shadow"></div>
                 </div>
-                </div>
-                <div class="page-turn-effect"></div>
             </div>
 
             <div class="manga-page" data-page="3">
-                <div class="placeholder-page">
-                    <div class="page-label">P.3</div>
-                    <div><img src="img/sample_03.png" alt="03"></div>
+                <div class="page-wrap">
+                    <img src="img/sample03.png" alt="03">
+                    <div class="turn-shadow"></div>
                 </div>
-                <div class="page-turn-effect"></div>
             </div>
 
             <div class="manga-page" data-page="4">
-                <div class="placeholder-page">
-                    <div class="page-label">P.4</div>
-                    <div><img src="img/sample_04.png" alt="04"></div>
+                <div class="page-wrap">
+                    <img src="img/sample04.png" alt="04">
+                    <div class="turn-shadow"></div>
                 </div>
-                <div class="page-turn-effect"></div>
             </div>
 
-                       <div class="manga-page" data-page="5">
-                <div class="placeholder-page">
-                    <div class="page-label">P.5</div>
-                    <div><img src="img/sample_05.png" alt="05"></div>
+            <div class="manga-page" data-page="5">
+                <div class="page-wrap">
+                    <img src="img/sample05.png" alt="05">
+                    <div class="turn-shadow"></div>
                 </div>
-                <div class="page-turn-effect"></div>
-            </div> 
-            <!-- ページ9: お品書きページ -->
-            <div class="manga-page final-page" data-page="6">
-                <h2>ネットプリント企画の詳細はこちら</h2>
-                <a href="https://lcb512funsite.pages.dev" target="_blank">LCB5.12企画サイト</a>
             </div>
+
+            <!-- 最終ページ: 企画の案内 -->
+            <div class="manga-page final-page" data-page="6">
+                <div class="final-content">
+                    <div class="final-deco-line"></div>
+                    <h2>ネットプリント企画の詳細はこちら</h2>
+                    <a href="https://lcb512funsite.pages.dev" target="_blank" rel="noopener noreferrer" class="final-btn">
+                        <span class="btn-label">LCB5.12企画サイト</span>
+                        <span class="btn-arrow">→</span>
+                    </a>
+                    <div class="final-deco-line"></div>
+                </div>
+            </div>
+
         </div>
 
         <!-- ページインジケーター -->
