@@ -1,4 +1,4 @@
- (function () {
+(function () {
         const slider = document.getElementById('mangaSlider');
         const pages = document.querySelectorAll('.manga-page');
         const pageIndicator = document.getElementById('pageIndicator');
