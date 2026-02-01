@@ -26,7 +26,7 @@
         // ─── イベント登録 ───
         slider.addEventListener('pointerdown', dragStart, { passive: false });
         slider.addEventListener('pointermove', drag, { passive: false });
-        slider.addEventListener('pointerup', dragEnd);
+        sliderhttps://ol-lunatic-moonight-fantasy2026.pages.dev/img/sample01.png.addEventListener('pointerup', dragEnd);
         slider.addEventListener('pointercancel', dragEnd);
 
         // キーボード（右開き：左キー＝次へ・右キー＝戻る）
