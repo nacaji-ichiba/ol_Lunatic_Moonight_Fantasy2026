@@ -7,12 +7,10 @@
         let currentPage = 0;
         const totalPages = pages.length;
 
-        // スワイプ・ドラッグ用の変数
         let startX = 0;
         let currentTranslate = 0;
         let prevTranslate = 0;
         let isDragging = false;
-        let animating = false;
 
         // ─── インジケータードットの生成 ───
         for (let i = 0; i < totalPages; i++) {
@@ -29,21 +27,18 @@
         slider.addEventListener('pointerup', dragEnd);
         slider.addEventListener('pointercancel', dragEnd);
 
-        // キーボード（左キー＝次へ・右キー＝戻る）
+        // キーボード（右キー＝次へ・左キー＝戻る）
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') nextPage();
-            if (e.key === 'ArrowRight') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') prevPage();
         });
 
         // ─── ドラッグハンドラー ───
         function dragStart(e) {
-            if (animating) return;
             isDragging = true;
             startX = e.clientX;
             slider.setPointerCapture(e.pointerId);
             slider.style.transition = 'none';
-
-            // スワイプヒント消去
             swipeHint.classList.add('hidden');
         }
 
@@ -55,54 +50,43 @@
             slider.style.transform = `translateX(${currentTranslate}px)`;
         }
 
-        function dragEnd(e) {
+        function dragEnd() {
             if (!isDragging) return;
             isDragging = false;
 
             const movedBy = currentTranslate - prevTranslate;
-            const threshold = 40; // スワイプ判定の閾値(px)
+            const threshold = 40;
 
-            /*
-             * 右から左へフリック(movedBy < 0) → 次のページ
-             * 左から右へフリック(movedBy > 0) → 前のページ
-             */
-            if (movedBy < -threshold && currentPage < totalPages - 1) {
+            // 左→右へ引く(movedBy > 0) = 次へ
+            // 右→左へ引く(movedBy < 0) = 戻る
+            if (movedBy > threshold && currentPage < totalPages - 1) {
                 currentPage++;
                 animateTurn('next');
-            } else if (movedBy > threshold && currentPage > 0) {
+            } else if (movedBy < -threshold && currentPage > 0) {
                 currentPage--;
                 animateTurn('prev');
             } else {
-                // 閾値に達しなかった場合：現在ページに戻る
                 goToPage(currentPage);
             }
         }
 
         // ─── ページめくりアニメーション ───
         function animateTurn(direction) {
-            animating = true;
-            const page = pages[currentPage];
+            // currentPage は既に新しい値。
+            // DOM インデックス: currentPage=0 → index=totalPages-1（末尾）
+            const newIdx = totalPages - 1 - currentPage;
+            const oldIdx = direction === 'next' ? newIdx + 1 : newIdx - 1;
 
-            // めくりエフェクトクラス付与
-            if (direction === 'next') {
-                // 前のページのシャドーを見せる
-                const prevPage = pages[currentPage - 1];
-                if (prevPage) {
-                    prevPage.classList.add('turning-out');
-                }
-            }
-            page.classList.add('turning-in');
+            if (pages[newIdx]) pages[newIdx].classList.add('turning-in');
+            if (pages[oldIdx]) pages[oldIdx].classList.add('turning-out');
 
-            // アニメーション完了後にクリーンアップ
             setTimeout(() => {
                 pages.forEach(p => {
                     p.classList.remove('turning-out');
                     p.classList.remove('turning-in');
                 });
-                animating = false;
             }, 500);
 
-            // スライド位置を正規化
             goToPage(currentPage);
         }
 
@@ -129,7 +113,8 @@
 
         // ─── スライダー位置更新 ───
         function updateSliderPosition() {
-            const offset = -currentPage * window.innerWidth;
+            // P1=DOM末尾=右端。currentPageが増えると左へ動く。
+            const offset = (totalPages - 1 - currentPage) * window.innerWidth;
             prevTranslate = offset;
             currentTranslate = offset;
             slider.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
@@ -152,6 +137,23 @@
                 updateSliderPosition();
             }, 100);
         });
+
+        // ─── 画像保護 ───
+        // 右クリックメニュー抑制
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+        // ドラッグ抑制
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+        // モバイル長押し保存抑制
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.target.addEventListener('touchmove', (ev) => ev.preventDefault(), { once: true, passive: false });
+                e.target.addEventListener('touchend', (ev) => ev.preventDefault(), { once: true, passive: false });
+            }
+        }, { passive: true });
 
         // ─── 初期化 ───
         updateSliderPosition();
