@@ -57,8 +57,11 @@
             const movedBy = currentTranslate - prevTranslate;
             const threshold = 40;
 
-            // 左→右へ引く(movedBy > 0) = 次へ
-            // 右→左へ引く(movedBy < 0) = 戻る
+            /*
+             * 左→右へ引く (movedBy > 0) → 次へ (currentPage++)
+             *   スライダーは負方向へ動く → 画面は右から左へ進む
+             * 右→左へ引く (movedBy < 0) → 戻る (currentPage--)
+             */
             if (movedBy > threshold && currentPage < totalPages - 1) {
                 currentPage++;
                 animateTurn('next');
@@ -72,10 +75,9 @@
 
         // ─── ページめくりアニメーション ───
         function animateTurn(direction) {
-            // currentPage は既に新しい値。
-            // DOM インデックス: currentPage=0 → index=totalPages-1（末尾）
-            const newIdx = totalPages - 1 - currentPage;
-            const oldIdx = direction === 'next' ? newIdx + 1 : newIdx - 1;
+            // currentPage は既に新しい値
+            const newIdx = currentPage;
+            const oldIdx = direction === 'next' ? currentPage - 1 : currentPage + 1;
 
             if (pages[newIdx]) pages[newIdx].classList.add('turning-in');
             if (pages[oldIdx]) pages[oldIdx].classList.add('turning-out');
@@ -113,8 +115,8 @@
 
         // ─── スライダー位置更新 ───
         function updateSliderPosition() {
-            // P1=DOM末尾=右端。currentPageが増えると左へ動く。
-            const offset = (totalPages - 1 - currentPage) * window.innerWidth;
+            // DOM順とcurrentPageが同じ。負方向にスライドすることで次へ進む。
+            const offset = -currentPage * window.innerWidth;
             prevTranslate = offset;
             currentTranslate = offset;
             slider.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';

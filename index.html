@@ -18,19 +18,53 @@
 
         <!--
             漫画スライダー
-            ─────────────────────────────────────
-            進行方向「右→左」にするため DOM は逆順で並べる。
-            画面イメージ:
-              ←左                          右→
-              [P6][P5][P4][P3][P2][P1]
-                                      ^^^^ 開始位置
-            currentPage が増えると左へスライドし次へ進む。
-            フリック 左→右 で次へ。
-            ─────────────────────────────────────
+            ──────────────────────────────────
+            DOM順: [P1][P2][P3][P4][P5][P6]
+            画面上: P1が左端、右へ並べる
+            ──────────────────────────────────
+            フリック 左→右(movedBy > 0) → 次へ(currentPage++)
+            スライダーは負方向に動く → 画面は右から左へ進む
+            つまり「次のページが右から飛び込む」感覚になる
+            ──────────────────────────────────
         -->
         <div class="manga-slider" id="mangaSlider">
 
-            <!-- 最終ページ（DOM先頭＝画面の一番左） -->
+            <div class="manga-page" data-page="1">
+                <div class="page-wrap">
+                    <img src="img/sample_01.png" alt="01" draggable="false">
+                    <div class="turn-shadow"></div>
+                </div>
+            </div>
+
+            <div class="manga-page" data-page="2">
+                <div class="page-wrap">
+                    <img src="img/sample_02.png" alt="02" draggable="false">
+                    <div class="turn-shadow"></div>
+                </div>
+            </div>
+
+            <div class="manga-page" data-page="3">
+                <div class="page-wrap">
+                    <img src="img/sample_03.png" alt="03" draggable="false">
+                    <div class="turn-shadow"></div>
+                </div>
+            </div>
+
+            <div class="manga-page" data-page="4">
+                <div class="page-wrap">
+                    <img src="img/sample_04.png" alt="04" draggable="false">
+                    <div class="turn-shadow"></div>
+                </div>
+            </div>
+
+            <div class="manga-page" data-page="5">
+                <div class="page-wrap">
+                    <img src="img/sample_05.png" alt="05" draggable="false">
+                    <div class="turn-shadow"></div>
+                </div>
+            </div>
+
+            <!-- 最終ページ -->
             <div class="manga-page final-page" data-page="6">
                 <div class="final-content">
                     <div class="final-deco-line"></div>
@@ -43,46 +77,11 @@
                 </div>
             </div>
 
-            <div class="manga-page" data-page="5">
-                <div class="page-wrap">
-                    <img src="img/sample_05.png" alt="05" draggable="false">
-                    <div class="turn-shadow"></div>
-                </div>
-            </div>
-
-            <div class="manga-page" data-page="4">
-                <div class="page-wrap">
-                    <img src="img/sample_04.png" alt="04" draggable="false">
-                    <div class="turn-shadow"></div>
-                </div>
-            </div>
-
-            <div class="manga-page" data-page="3">
-                <div class="page-wrap">
-                    <img src="img/sample_03.png" alt="03" draggable="false">
-                    <div class="turn-shadow"></div>
-                </div>
-            </div>
-
-            <div class="manga-page" data-page="2">
-                <div class="page-wrap">
-                    <img src="img/sample_02.png" alt="02" draggable="false">
-                    <div class="turn-shadow"></div>
-                </div>
-            </div>
-
-            <!-- P1: DOM末尾＝画面の一番右＝開始画面 -->
-            <div class="manga-page" data-page="1">
-                <div class="page-wrap">
-                    <img src="img/sample_01.png" alt="01" draggable="false">
-                    <div class="turn-shadow"></div>
-                </div>
-            </div>
-
         </div>
 
         <!-- ページインジケーター -->
         <div class="page-indicator" id="pageIndicator"></div>
     </section>
+
 </body>
 </html>
