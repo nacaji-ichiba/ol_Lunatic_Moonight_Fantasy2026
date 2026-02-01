@@ -168,7 +168,7 @@ body {
 
 /* ─── 最終ページ ─── */
 .manga-page.final-page {
-    background: #0f0f0f;
+    background: linear-gradient(0deg, #d6f7cc, #5d9ff7);
 }
 
 .final-content {
