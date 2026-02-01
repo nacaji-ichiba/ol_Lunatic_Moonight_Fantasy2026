@@ -1,4 +1,4 @@
-       (function () {
+(function () {
         const slider = document.getElementById('mangaSlider');
         const pages = document.querySelectorAll('.manga-page');
         const pageIndicator = document.getElementById('pageIndicator');
@@ -26,13 +26,13 @@
         // ─── イベント登録 ───
         slider.addEventListener('pointerdown', dragStart, { passive: false });
         slider.addEventListener('pointermove', drag, { passive: false });
-        sliderhttps://ol-lunatic-moonight-fantasy2026.pages.dev/img/sample01.png.addEventListener('pointerup', dragEnd);
+        slider.addEventListener('pointerup', dragEnd);
         slider.addEventListener('pointercancel', dragEnd);
 
-        // キーボード（右開き：左キー＝次へ・右キー＝戻る）
+        // キーボード（左開き：右キー＝次へ・左キー＝戻る）
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') nextPage();
-            if (e.key === 'ArrowRight') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') prevPage();
         });
 
         // ─── ドラッグハンドラー ───
@@ -63,14 +63,14 @@
             const threshold = 40; // スワイプ判定の閾値(px)
 
             /*
-             * 右開き本のロジック：
-             *   画面を右から左へスワイプ(movedBy < 0) → 次のページ(currentPage++)
-             *   画面を左から右へスワイプ(movedBy > 0) → 前のページ(currentPage--)
+             * 左開き本のロジック：
+             *   画面を左から右へスワイプ(movedBy > 0) → 次のページ(currentPage++)
+             *   画面を右から左へスワイプ(movedBy < 0) → 前のページ(currentPage--)
              */
-            if (movedBy < -threshold && currentPage < totalPages - 1) {
+            if (movedBy > threshold && currentPage < totalPages - 1) {
                 currentPage++;
                 animateTurn('next');
-            } else if (movedBy > threshold && currentPage > 0) {
+            } else if (movedBy < -threshold && currentPage > 0) {
                 currentPage--;
                 animateTurn('prev');
             } else {
