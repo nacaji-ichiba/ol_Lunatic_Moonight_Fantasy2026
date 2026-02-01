@@ -1,189 +1,295 @@
-    * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Yu Gothic', 'Hiragino Sans', sans-serif;
-            overflow-x: hidden;
-            background: #f5f5f5;
-        }
+/* ─── リセット ─── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
 
-        /* Section 2: 漫画ビューワー */
-        #section2 {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            background: #2c2c2c;
-        }
+/* ─── ベース ─── */
+body {
+    font-family: 'Hiragino Kaku Gothic Pro', 'Yu Gothic', sans-serif;
+    overflow: hidden;
+    background: #1a1a1a;
+    height: 100vh;
+    height: 100dvh; /* モバイルアドレスバー対応 */
+}
 
-        /* 漫画スライダーコンテナ */
-        .manga-slider {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: row-reverse;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: grab;
-        }
+/* ─── Section2: 漫画ビューワー ─── */
+#section2 {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: #1a1a1a;
+}
 
-        .manga-slider.grabbing {
-            cursor: grabbing;
-            transition: none;
-        }
+/* ─── 漫画スライダー ─── */
+.manga-slider {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    will-change: transform;
+    touch-action: pan-y; /* 縦スクロールは許可・横スワイプのみ拿る */
+}
 
-        /* 各ページ */
-        .manga-page {
-            min-width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: #fff;
-        }
+/* ─── 各ページ ─── */
+.manga-page {
+    min-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #f4f0eb; /* 古い紙風の背景 */
+    flex-shrink: 0;
+    overflow: hidden;
+}
 
-        /* ページ画像 */
-        .manga-page img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
+/* ─── 画像ラッパー（A5比率を維持・中央配置） ─── */
+.page-wrap {
+    position: relative;
+    /* A5 = 148mm × 210mm → 比率 148:210 ≈ 0.705 */
+    width: min(85vw, 60vh * 0.705);
+    height: min(85vh, 85vw / 0.705);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        /* 最終ページ（お品書き） */
-        .manga-page.final-page {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            flex-direction: column;
-            gap: 30px;
-        }
+.manga-page img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    /* 紙のような影 */
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.12),
+        0 8px 32px rgba(0, 0, 0, 0.18),
+        0 1px 2px rgba(0, 0, 0, 0.08);
+    border-radius: 1px;
+}
 
-        .final-page h2 {
-            font-size: 3rem;
-            color: white;
-            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
+/* ─── ページめくりシャドー（右開きなので右辺に影） ─── */
+.turn-shadow {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(
+        to left,
+        rgba(0, 0, 0, 0.25) 0%,
+        rgba(0, 0, 0, 0.08) 40%,
+        transparent 100%
+    );
+    pointer-events: none;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
 
-        .final-page a {
-            display: inline-block;
-            padding: 20px 50px;
-            background: white;
-            color: #667eea;
-            text-decoration: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
+/* めくり中の状態：シャドーが広がる */
+.manga-page.turning-out .turn-shadow {
+    width: 60%;
+}
 
-        .final-page a:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-            background: #f0f0f0;
-        }
+/* めくり直後の新ページ：左側にシャドーが飛び込んで消える */
+.manga-page.turning-in .turn-shadow {
+    position: absolute;
+    top: 0;
+    right: auto;
+    left: 0;
+    width: 40%;
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.22) 0%,
+        rgba(0, 0, 0, 0.06) 50%,
+        transparent 100%
+    );
+    animation: shadowFadeIn 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
-        /* ページめくりエフェクト */
-        .page-turn-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(to right, rgba(0, 0, 0, 0.1), transparent);
-            pointer-events: none;
-            transition: width 0.3s ease;
-        }
+@keyframes shadowFadeIn {
+    0% {
+        width: 50%;
+        opacity: 1;
+    }
+    100% {
+        width: 0%;
+        opacity: 0;
+    }
+}
 
-        .manga-page.turning .page-turn-effect {
-            width: 100px;
-        }
+/* ─── 最終ページ ─── */
+.manga-page.final-page {
+    background: #0f0f0f;
+}
 
-        /* ナビゲーションインジケーター */
-        .page-indicator {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: row-reverse;
-            gap: 10px;
-            z-index: 100;
-        }
+.final-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding: 0 24px;
+    text-align: center;
+}
 
-        .indicator-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+.final-deco-line {
+    width: 48px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.25);
+}
 
-        .indicator-dot.active {
-            background: white;
-            width: 30px;
-            border-radius: 6px;
-        }
-        
-          /* スワイプヒント */
-        
-        .swipe-hint {
-            position: absolute;
-            left: 50px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 2rem;
-            animation: swipeHint 2s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 100;
-        }
+.final-content h2 {
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+}
 
-        @keyframes swipeHint {
-            0%, 100% {
-                transform: translateY(-50%) translateX(0);
-                opacity: 0.6;
-            }
-            50% {
-                transform: translateY(-50%) translateX(20px);
-                opacity: 1;
-            }
-        }
-        
-        .swipe-hint.hidden {
-            display: none;
-        }
+.final-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 40px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+}
 
-        /* レスポンシブ対応 */
-        @media (max-width: 768px) {
-            .final-page h2 {
-                font-size: 2rem;
-            }
+.final-btn:hover,
+.final-btn:active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
 
-            .final-page a {
-                font-size: 1.2rem;
-                padding: 15px 35px;
-            }
+.btn-arrow {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
 
-        /* プレースホルダー用スタイル */
-        .placeholder-page {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f0f0f0;
-            color: #999;
-            font-size: 1.5rem;
-            flex-direction: column;
-            gap: 20px;
-        }
+.final-btn:hover .btn-arrow,
+.final-btn:active .btn-arrow {
+    transform: translateX(4px);
+}
 
-        .placeholder-page .page-label {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #ccc;
-        }
+/* ─── スワイプヒント ─── */
+.swipe-hint {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 100;
+    pointer-events: none;
+    animation: hintPulse 2.2s ease-in-out infinite;
+}
+
+.swipe-arrow {
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.swipe-text {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.12em;
+    writing-mode: horizontal-tb;
+}
+
+@keyframes hintPulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translateY(-50%) translateX(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(12px);
+    }
+}
+
+.swipe-hint.hidden {
+    display: none;
+}
+
+/* ─── ページインジケーター ─── */
+.page-indicator {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    z-index: 100;
+}
+
+.indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.indicator-dot.active {
+    width: 24px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* ─── レスポンシブ調整 ─── */
+
+/* タブレット・デスクトップ */
+@media (min-width: 769px) {
+    .page-wrap {
+        width: min(70vw, 70vh * 0.705);
+        height: min(80vh, 70vw / 0.705);
+    }
+
+    .final-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .final-btn {
+        padding: 18px 44px;
+        font-size: 1.1rem;
+    }
+}
+
+/* 特に小さいスマホ */
+@media (max-height: 600px) {
+    .page-wrap {
+        width: min(90vw, 75vh * 0.705);
+        height: min(75vh, 90vw / 0.705);
+    }
+
+    .final-content {
+        gap: 20px;
+    }
+
+    .final-content h2 {
+        font-size: 1.1rem;
+    }
+
+    .final-btn {
+        padding: 12px 28px;
+        font-size: 0.9rem;
+    }
+}
