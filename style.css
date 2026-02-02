@@ -55,7 +55,7 @@ body {
     position: relative;
     /* A5 = 148mm × 210mm → 比率 148:210 ≈ 0.705 */
     width: min(85vw, 450px, 60vh * 0.705);
-    height: min(85vh, 450px / 0.705, 85vw / 0.705);
+    height: min(85vh, 450px / 0.705, 79vw / 0.705);
     display: flex;
     align-items: center;
     justify-content: center;
