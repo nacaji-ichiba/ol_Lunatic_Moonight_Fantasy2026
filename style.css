@@ -222,7 +222,7 @@ body {
 
 /* ─── 最終ページ ─── */
 .manga-page.final-page {
-    background: linear-gradient(0deg, #e2fbd0, #a6c5ff);
+    background: linear-gradient(0deg, #bbe59d, #6496f2);
 }
 
 .final-content {
