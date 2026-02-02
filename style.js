@@ -156,7 +156,23 @@
                 e.target.addEventListener('touchend', (ev) => ev.preventDefault(), { once: true, passive: false });
             }
         }, { passive: true });
-
+        
+  // ─── スクロールテキスト無限ループ ───
+        (function() {
+            const track = document.getElementById('scrollTextTrack');
+            if (!track) return;
+            
+            // トラック全体の幅を取得
+            const trackWidth = track.scrollWidth;
+            
+            // アニメーションの継続時間を計算（速度を一定に保つ）
+            const speed = 50; // ピクセル/秒
+            const duration = trackWidth / speed;
+            
+            // CSSカスタムプロパティとして設定
+            track.style.setProperty('--track-width', `-${trackWidth}px`);
+            track.style.animationDuration = `${duration}s`;
+        })();
         // ─── 初期化 ───
         updateSliderPosition();
         updateIndicator();
