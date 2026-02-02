@@ -48,7 +48,7 @@ body {
     display: flex;
     gap: 80px;
     white-space: nowrap;
-    animation: scrollText 40s linear infinite;
+    animation: scrollText 60s linear infinite;
 }
 .scroll-text-track span {
     font-size: 2rem;
@@ -108,8 +108,8 @@ body {
 .page-wrap {
     position: relative;
     /* A5 = 148mm × 210mm → 比率 148:210 ≈ 0.705 */
-    width: min(70vw, 450px, 100vh * 0.705);
-    height: min(100vh, 450px / 0.705, 69vw / 0.705);
+    width: min(90vw, 450px, 100vh * 0.705);
+    height: min(100vh, 450px / 0.705, 90vw / 0.705);
     display: flex;
     align-items: center;
     justify-content: center;
