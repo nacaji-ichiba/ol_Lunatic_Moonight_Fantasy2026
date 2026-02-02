@@ -42,7 +42,6 @@ body {
     display: flex;
     align-items: center;
     pointer-events: none; /* クリック・タッチを下に貫通させる */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .scroll-text-track {
@@ -110,7 +109,7 @@ body {
     position: relative;
     /* A5 = 148mm × 210mm → 比率 148:210 ≈ 0.705 */
     width: min(70vw, 450px, 100vh * 0.705);
-    height: min(100vh, 450px / 0.705, 70vw / 0.705);
+    height: min(100vh, 450px / 0.705, 69vw / 0.705);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -223,7 +222,7 @@ body {
 
 /* ─── 最終ページ ─── */
 .manga-page.final-page {
-    background: #0f0f0f;
+    background: linear-gradient(0deg, #e2fbd0, #a6c5ff);
 }
 
 .final-content {
