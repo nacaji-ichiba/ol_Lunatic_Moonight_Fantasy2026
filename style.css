@@ -301,16 +301,15 @@ body {
 
 .swipe-arrow {
     font-size: 1.6rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgb(255 3 3 / 70%);
 }
 
 .swipe-text {
     font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgb(255 0 0 / 50%);
     letter-spacing: 0.12em;
     writing-mode: horizontal-tb;
 }
-
 @keyframes hintPulse {
     0%, 100% {
         opacity: 0.5;
