@@ -48,7 +48,7 @@ body {
     display: flex;
     gap: 80px;
     white-space: nowrap;
-    animation: scrollText 1000s linear infinite;
+    animation: scrollText 100s linear infinite;
 }
 .scroll-text-track span {
     font-size: 2rem;
